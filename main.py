@@ -19,11 +19,30 @@ index = 0
 
 def CheckIfRegister(checkVar):
 	
-	if checkVar[0] == 't' or checkVar[0] == 'T':
+	if checkVar[0] == 't' or checkVar[0] == 'T': #temp / swap
 		return 0
 
-	if checkVar[0] == 'p' or checkVar[0] == 'P':
+	if checkVar[0] == 'p' or checkVar[0] == 'P': #pointer (for memory read/writes)
 		return 1
+
+	if checkVar[0] == 'a' or checkVar[0] == 'A': #Accumulator, read-only, only updated after ALU instruction
+		return 2
+	
+	if checkVar[0:1] == 'i1' or checkVar[0:1] == 'I1': #ALU in 1
+		return 3
+
+	if checkVar[0:1] == 'i2' or checkVar[0:1] == 'I2': #ALU in 2
+		return 4
+
+	
+	if checkVar[0] == 'b' or checkVar[0] == 'B': #memory bank
+		return 0xD
+	
+	if checkVar[0:2] == 'in1' or checkVar[0:2] == 'IN1': #hex keypad input 0-7, read-only
+		return 0xE
+	
+	if checkVar[0:2] == 'in2' or checkVar[0:2] == 'IN2': #hex keypad input 8-F, read-only
+		return 0xF
 	
 	return - 1
 	
