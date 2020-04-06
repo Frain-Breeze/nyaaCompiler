@@ -28,20 +28,20 @@ def CheckIfRegister(checkVar):
 	if checkVar[0] == 'a' or checkVar[0] == 'A': #Accumulator, read-only, only updated after ALU instruction
 		return 2
 	
-	if checkVar[0:1] == 'i1' or checkVar[0:1] == 'I1': #ALU in 1
+	if checkVar[0:2] == 'i1' or checkVar[0:2] == 'I1': #ALU in 1
 		return 3
 
-	if checkVar[0:1] == 'i2' or checkVar[0:1] == 'I2': #ALU in 2
+	if checkVar[0:2] == 'i2' or checkVar[0:2] == 'I2': #ALU in 2
 		return 4
 
 	
 	if checkVar[0] == 'b' or checkVar[0] == 'B': #memory bank
 		return 0xD
 	
-	if checkVar[0:2] == 'in1' or checkVar[0:2] == 'IN1': #hex keypad input 0-7, read-only
+	if checkVar[0:3] == 'in1' or checkVar[0:3] == 'IN1': #hex keypad input 0-7, read-only
 		return 0xE
 	
-	if checkVar[0:2] == 'in2' or checkVar[0:2] == 'IN2': #hex keypad input 8-F, read-only
+	if checkVar[0:3] == 'in2' or checkVar[0:3] == 'IN2': #hex keypad input 8-F, read-only
 		return 0xF
 	
 	return - 1
@@ -63,8 +63,12 @@ def CheckData(checkVar):
 if len(sys.argv) != 1: #if a filename is supplied through launch args
 	filein = sys.argv[1]
 else: #if no filename is supplied through launch args, promt user
-	filein = input("file name: ")
+	filein = input("input file name: ")
 
+if len(sys.argv) > 2:  #if both a input-filename and output-filename are supplied
+	fileout = sys.argv[2]
+else:
+	fileout = input("output file name: ")
 
 with open(filein, "r") as f:
 	lines = f.readlines()
@@ -76,49 +80,7 @@ for line in lines:#just testing file reading
 		print(str(line), end='')
 print('\n')
 
-#commented out, not yet needed
-'''for lineIndex, line in enumerate(lines):
-	index = 0
-	if (line[0] != ' ') and (line[0] != '	') and (line[0] != '\n') and (line[0] != ';'): #label
-		print("found a label at line " + str(lineIndex + 1) + ' called: ', end='')
-		splitTemp = line.split(':')
-		print(splitTemp[0])
-		labels[splitTemp[0]] = lineIndex
-	else:
-		if line[index] == ';':
-			print("found a comment at line " + str(lineIndex + 1))
 
-print(labels) '''
-
-'''for lineIndex, line in enumerate(lines):
-	inComment = False
-	inFunction = False
-	currCharacter = 0
-
-	if line[0] == ' ' or line[0] == '	': #is the line not a label?
-		while currCharacter < len(line):
-			if line[currCharacter] == ';':
-				inComment = True
-
-			print(currCharacter, end='	')
-			print(line[currCharacter], end=' ')
-			print(inComment)
-
-			#instruction finding
-			if inComment == False and line[currCharacter] != ' ' and line[currCharacter] != '	':
-				print("found a function thingy")
-				tempSplit = line[currCharacter:].split(' ')
-				print("tempSplit: " + str(tempSplit[0]))
-				currCharacter += len(tempSplit[0])
-				
-				checkPart(tempSplit[0])
-			currCharacter += 1
-	else:
-		pass '''
-		
-#how it should be done:
-#1: split line up into parts, split by a space.
-#2: work through if-else tree for selecting correct opcode
 
 for lineIndex, line in enumerate(lines):
 	tempSplit = line.split(' ')
@@ -172,12 +134,25 @@ for lineIndex, line in enumerate(lines):
 				outputIndex += 1
 				output[outputIndex] = ((CheckIfRegister(tempSplit[2]) << 4) | CheckIfRegister(tempSplit[1]))
 				outputIndex += 1
-				
-
 			print(str(list(output)))
 
+		elif tempSplit[0].find('and') == 1 or tempSplit[0].find('AND') == 1:
+			#i1 AND i2 -> acc
+			output[outputIndex] = 0x00
+			outputIndex += 1
+			output[outputIndex] = 0x01
+			outputIndex += 1
+			print(str(list(output)))
+
+		
 
 
+writefile = open(fileout, "wb")
+fileIndex = 0
+while fileIndex < outputIndex:
+	writefile.write((output[fileIndex]).to_bytes(1,byteorder="little"))
+	fileIndex += 1
+writefile.close()
 
 
 
