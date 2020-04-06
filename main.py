@@ -19,10 +19,10 @@ index = 0
 
 def CheckIfRegister(checkVar):
 	
-	if checkVar == 't' or checkVar == 'T':
+	if checkVar[0] == 't' or checkVar[0] == 'T':
 		return 0
 
-	if checkVar == 'p' or checkVar == 'P':
+	if checkVar[0] == 'p' or checkVar[0] == 'P':
 		return 1
 	
 	return - 1
@@ -34,6 +34,9 @@ def CheckData(checkVar):
 	
 	if str(checkVar).find('%') == 0:
 		return int(checkVar[1:], base=2)
+
+	if checkVar[0:].isdigit() == True:
+		return int(checkVar[0:], base=10) #decimal has no identifier, so we check if it's a number
 
 	return -1
 
@@ -105,12 +108,14 @@ for lineIndex, line in enumerate(lines):
 	#is line indented?
 	tempFind = tempSplit[0].find("\t")
 	if tempFind == 0:  #we found an indented part
+
+		#LD operand
 		if tempSplit[0].find("ld") == 1 or tempSplit[0].find("LD") == 1: #if command is ld or LD, expects 2 operands
 			print(tempSplit[1])
 			print(tempSplit[2])
 
 			#LD REG VALUE
-			if CheckIfRegister(tempSplit[1]) != -1 and CheckData(tempSplit[2] != -1):
+			if CheckIfRegister(tempSplit[1]) != -1 and CheckData(tempSplit[2]) != -1:
 				print("first operand is register " + str(CheckIfRegister(tempSplit[1])))
 				print("second operand is value " + str(CheckData(tempSplit[2])))
 
@@ -125,7 +130,31 @@ for lineIndex, line in enumerate(lines):
 				outputIndex += 1
 				output[outputIndex] = ((0x0 << 4) | CheckIfRegister(tempSplit[1]))
 				outputIndex += 1
-			
+
+			#LD VALUE REG
+			elif CheckData(tempSplit[1]) != -1 and CheckIfRegister(tempSplit[2]) != -1:
+				print("UNIMPLEMENTED LD VERSION AT LINE " + str(lineIndex))
+				print("first operand is value " + str(CheckData(tempSplit[1])))
+				print("second operand is register " + str(CheckIfRegister(tempSplit[2])))
+
+				#ld 
+
+			#LD VALUE VALUE
+			elif CheckData(tempSplit[1]) != -1 and CheckData(tempSplit[2]) != -1:
+				print("UNIMPLEMENTED LD VERSION AT LINE " + str(lineIndex))
+
+			#LD REG REG
+			elif CheckIfRegister(tempSplit[1]) != -1 and CheckIfRegister(tempSplit[2]) != -1:
+				print("first operand is register " + str(CheckIfRegister(tempSplit[1])))
+				print("second operand is register " + str(CheckIfRegister(tempSplit[2])))
+
+				#ld REG2 into REG1
+				output[outputIndex] = 0x43
+				outputIndex += 1
+				output[outputIndex] = ((CheckIfRegister(tempSplit[2]) << 4) | CheckIfRegister(tempSplit[1]))
+				outputIndex += 1
+				
+
 			print(str(list(output)))
 
 
