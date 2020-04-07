@@ -89,9 +89,57 @@ for lineIndex, line in enumerate(lines):
 	#is line indented?
 	tempFind = tempSplit[0].find("\t")
 	if tempFind == 0:  #we found an indented part
+		
+		if tempSplit[0].find('and') == 1 or tempSplit[0].find('AND') == 1:
+			#i1 AND i2 -> acc
+			output[outputIndex] = 0x00
+			outputIndex += 1
+			output[outputIndex] = 0x01
+			outputIndex += 1
+			print(str(list(output)))
+
+		elif tempSplit[0].find('or') == 1 or tempSplit[0].find('OR') == 1:
+			#i1 OR i2 -> acc
+			output[outputIndex] = 0x00
+			outputIndex += 1
+			output[outputIndex] = 0x02
+			outputIndex += 1
+			print(str(list(output)))
+
+		elif tempSplit[0].find('nand') == 1 or tempSplit[0].find('NAND') == 1:
+			#i1 OR i2 -> acc
+			output[outputIndex] = 0x00
+			outputIndex += 1
+			output[outputIndex] = 0x03
+			outputIndex += 1
+			print(str(list(output)))
+
+		elif tempSplit[0].find('xor') == 1 or tempSplit[0].find('XOR') == 1:
+			#i1 OR i2 -> acc
+			output[outputIndex] = 0x00
+			outputIndex += 1
+			output[outputIndex] = 0x04
+			outputIndex += 1
+			print(str(list(output)))
+
+		elif tempSplit[0].find('rl') == 1 or tempSplit[0].find('RL') == 1:
+			#i1 OR i2 -> acc
+			output[outputIndex] = 0x00
+			outputIndex += 1
+			output[outputIndex] = 0x05
+			outputIndex += 1
+			print(str(list(output)))
+
+		elif tempSplit[0].find('rr') == 1 or tempSplit[0].find('RR') == 1:
+			#i1 OR i2 -> acc
+			output[outputIndex] = 0x00
+			outputIndex += 1
+			output[outputIndex] = 0x06
+			outputIndex += 1
+			print(str(list(output)))
 
 		#LD operand
-		if tempSplit[0].find("ld") == 1 or tempSplit[0].find("LD") == 1: #if command is ld or LD, expects 2 operands
+		elif tempSplit[0].find("ld") == 1 or tempSplit[0].find("LD") == 1: #if command is ld or LD, expects 2 operands
 			print(tempSplit[1])
 			print(tempSplit[2])
 
@@ -136,13 +184,7 @@ for lineIndex, line in enumerate(lines):
 				outputIndex += 1
 			print(str(list(output)))
 
-		elif tempSplit[0].find('and') == 1 or tempSplit[0].find('AND') == 1:
-			#i1 AND i2 -> acc
-			output[outputIndex] = 0x00
-			outputIndex += 1
-			output[outputIndex] = 0x01
-			outputIndex += 1
-			print(str(list(output)))
+		
 
 		
 
