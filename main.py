@@ -45,7 +45,12 @@ def CheckIfRegister(checkVar):
 		return 0xF
 	
 	return - 1
-	
+
+def CheckLabel(checkVar):
+	if CheckIfRegister(checkVar) == -1 and CheckData(checkVar) == -1:
+		return True
+	return False
+
 def CheckData(checkVar):
 
 	if str(checkVar).find('0x') == 0:
@@ -80,8 +85,26 @@ for line in lines:#just testing file reading
 		print(str(line), end='')
 print('\n')
 
+#checking for labels (first pass)
+for lineIndex, line in enumerate(lines):
+	tempSplit = line.split(' ')
+	print(str(tempSplit))
 
+	if CheckLabel(tempSplit[0]) == True and tempSplit[0].find('\n') != 0 and tempSplit[0].find(';') != 0 and tempSplit[0].find('\n') != 0:  #itsa label
+		if len(labels) != 0:
+			applyLabel = False
+			for key, value in labels.items():
+				if key != tempSplit[0]:
+					applyLabel = True
+				else:
+					print('DUPLICATE LABEL! ')
+			if applyLabel == True:
+				labels[tempSplit[0].strip()] = outputIndex
+		else:
+			labels[tempSplit[0].strip()] = outputIndex
+print('labels found: ' + str(labels) + '\n\n')
 
+#command checking (second pass)
 for lineIndex, line in enumerate(lines):
 	tempSplit = line.split(' ')
 	print(str(tempSplit))
@@ -138,30 +161,37 @@ for lineIndex, line in enumerate(lines):
 			outputIndex += 1
 			print(str(list(output)))
 
-		elif tempSplit[0].find('jpz') == 1 or tempSplit[0].find('JPZ') == 1:
-			#jump if zero
-			output[outputIndex] = (CheckData(tempSplit[1]) >> 8) | 0x20
-			outputIndex += 1
-			output[outputIndex] = (CheckData(tempSplit[1]) & 0xFF)
-			outputIndex += 1
-			print(str(list(output)))
+		elif (tempSplit[0].find('jp') == 1 or tempSplit[0].find('JP') == 1) and CheckData(tempSplit[0]) != -1:
+			if tempSplit[0].find('jpz') == 1 or tempSplit[0].find('JPZ') == 1:
+				#jump if zero
+				output[outputIndex] = (CheckData(tempSplit[1]) >> 8) | 0x20
+				outputIndex += 1
+				output[outputIndex] = (CheckData(tempSplit[1]) & 0xFF)
+				outputIndex += 1
+				print(str(list(output)))
 
-		elif tempSplit[0].find('jpn') == 1 or tempSplit[0].find('JPN') == 1:
-			#jump if NOT zero
-			output[outputIndex] = (CheckData(tempSplit[1]) >> 8) | 0x30
-			outputIndex += 1
-			output[outputIndex] = (CheckData(tempSplit[1]) & 0xFF)
-			outputIndex += 1
-			print(str(list(output)))
+			elif tempSplit[0].find('jpn') == 1 or tempSplit[0].find('JPN') == 1:
+				#jump if NOT zero
+				output[outputIndex] = (CheckData(tempSplit[1]) >> 8) | 0x30
+				outputIndex += 1
+				output[outputIndex] = (CheckData(tempSplit[1]) & 0xFF)
+				outputIndex += 1
+				print(str(list(output)))
 
-		elif tempSplit[0].find('jp') == 1 or tempSplit[0].find('JP') == 1:
-			#jump absolute
-			output[outputIndex] = (CheckData(tempSplit[1]) >> 8) | 0x10
-			outputIndex += 1
-			output[outputIndex] = (CheckData(tempSplit[1]) & 0xFF)
-			outputIndex += 1
-			print(str(list(output)))
+			elif tempSplit[0].find('jp') == 1 or tempSplit[0].find('JP') == 1:
+				#jump absolute
+				output[outputIndex] = (CheckData(tempSplit[1]) >> 8) | 0x10
+				outputIndex += 1
+				output[outputIndex] = (CheckData(tempSplit[1]) & 0xFF)
+				outputIndex += 1
+				print(str(list(output)))
 
+		elif (tempSplit[0].find('jp') == 1 or tempSplit[0].find('JP') == 1) and CheckData(tempSplit[0]) == -1:
+			print('jp to a label')
+			print(tempSplit[1])
+			if tempSplit[1] not in labels:
+				print('poyo')
+				print(labels)
 		
 
 		#LD operand
@@ -210,10 +240,7 @@ for lineIndex, line in enumerate(lines):
 				outputIndex += 1
 			print(str(list(output)))
 
-		
-
-		
-
+	
 
 writefile = open(fileout, "wb")
 fileIndex = 0
