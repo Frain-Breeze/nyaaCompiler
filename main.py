@@ -13,7 +13,7 @@ from enum import Enum, auto
 #variable declaration
 programLength = 0
 labels = {}
-output = bytearray(16)  #the output program
+output = bytearray(32)  #the output program
 outputIndex = 0
 index = 0
 
@@ -88,7 +88,7 @@ for lineIndex, line in enumerate(lines):
 
 	#is line indented?
 	tempFind = tempSplit[0].find("\t")
-	if tempFind == 0:  #we found an indented part
+	if tempFind == 0 and tempSplit[0].find(';') != 1:  #we found an indented part (and it's not a comment)
 		
 		if tempSplit[0].find('and') == 1 or tempSplit[0].find('AND') == 1:
 			#i1 AND i2 -> acc
@@ -137,6 +137,32 @@ for lineIndex, line in enumerate(lines):
 			output[outputIndex] = 0x06
 			outputIndex += 1
 			print(str(list(output)))
+
+		elif tempSplit[0].find('jpz') == 1 or tempSplit[0].find('JPZ') == 1:
+			#jump if zero
+			output[outputIndex] = (CheckData(tempSplit[1]) >> 8) | 0x20
+			outputIndex += 1
+			output[outputIndex] = (CheckData(tempSplit[1]) & 0xFF)
+			outputIndex += 1
+			print(str(list(output)))
+
+		elif tempSplit[0].find('jpn') == 1 or tempSplit[0].find('JPN') == 1:
+			#jump if NOT zero
+			output[outputIndex] = (CheckData(tempSplit[1]) >> 8) | 0x30
+			outputIndex += 1
+			output[outputIndex] = (CheckData(tempSplit[1]) & 0xFF)
+			outputIndex += 1
+			print(str(list(output)))
+
+		elif tempSplit[0].find('jp') == 1 or tempSplit[0].find('JP') == 1:
+			#jump absolute
+			output[outputIndex] = (CheckData(tempSplit[1]) >> 8) | 0x10
+			outputIndex += 1
+			output[outputIndex] = (CheckData(tempSplit[1]) & 0xFF)
+			outputIndex += 1
+			print(str(list(output)))
+
+		
 
 		#LD operand
 		elif tempSplit[0].find("ld") == 1 or tempSplit[0].find("LD") == 1: #if command is ld or LD, expects 2 operands
